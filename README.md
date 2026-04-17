@@ -1,3 +1,3 @@
-# vedema.github.io
+# https://github.com/fredmac20-ctrl/My-Data-Analytics-Project
 
-Week 0 setup completed by Vivian Edema
+ This is a compendium of  Analytic projects done by Alfred
