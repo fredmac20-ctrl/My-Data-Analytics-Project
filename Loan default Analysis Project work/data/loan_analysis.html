@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Default Risk Analysis Using Financial and Demographic Data</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg1: #12001f;
+            --bg2: #001f2e;
+            --bg3: #071a12;
+            --card: rgba(255, 255, 255, 0.09);
+            --card2: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.14);
+            --text: #ffffff;
+            --soft: #e8f7ff;
+            --muted: #b8ced8;
+            --pink: #ff4ecd;
+            --cyan: #22d3ee;
+            --lime: #a3e635;
+            --amber: #f59e0b;
+            --violet: #8b5cf6;
+            --rose: #fb7185;
+            --blue: #60a5fa;
+            --shadow: 0 25px 65px rgba(0, 0, 0, 0.32);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(255, 78, 205, 0.25), transparent 26%),
+                radial-gradient(circle at top right, rgba(34, 211, 238, 0.22), transparent 24%),
+                radial-gradient(circle at bottom left, rgba(163, 230, 53, 0.14), transparent 28%),
+                linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+            background-attachment: fixed;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 110px 20px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.3rem, 5vw, 4.4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            max-width: 960px;
+            margin: auto;
+            color: var(--soft);
+            font-size: 1.08rem;
+            line-height: 1.8;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255, 78, 205, 0.25), rgba(34, 211, 238, 0.2));
+            border: 1px solid var(--border);
+            color: #fff;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: .4px;
+            backdrop-filter: blur(14px);
+        }
+
+        .tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .tag {
+            padding: 10px 15px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .section-card {
+            max-width: 1240px;
+            margin: 24px auto;
+            padding: 34px;
+            border-radius: 30px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .section-title {
+            font-size: 1.9rem;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .section-intro {
+            color: var(--soft);
+            line-height: 1.8;
+            margin-bottom: 0;
+        }
+
+        .content-box {
+            height: 100%;
+            padding: 22px;
+            border-radius: 24px;
+            background: var(--card2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .pink {
+            background: linear-gradient(135deg, var(--pink), var(--violet));
+        }
+
+        .cyan {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #00131c;
+        }
+
+        .lime {
+            background: linear-gradient(135deg, var(--lime), #22c55e);
+            color: #071a12;
+        }
+
+        .amber {
+            background: linear-gradient(135deg, var(--amber), #fde047);
+            color: #1f1300;
+        }
+
+        .rose {
+            background: linear-gradient(135deg, var(--rose), #f43f5e);
+        }
+
+        .violet {
+            background: linear-gradient(135deg, var(--violet), #c084fc);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 16px;
+        }
+
+        .kpi-card {
+            text-align: center;
+            padding: 24px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .kpi-number {
+            font-size: 2.1rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--pink), var(--cyan), var(--lime));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .kpi-label {
+            color: var(--soft);
+            margin-top: 6px;
+        }
+
+        .image-card,
+        .visual-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 26px;
+            overflow: hidden;
+            height: 100%;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+        }
+
+        .image-wrap {
+            background: #06131a;
+            overflow: hidden;
+        }
+
+        .image-wrap img,
+        .visual-img {
+            width: 100%;
+            height: 310px;
+            object-fit: contain;
+            background: #071016;
+            cursor: zoom-in;
+            display: block;
+            transition: transform .35s ease;
+        }
+
+        .image-card:hover img {
+            transform: scale(1.03);
+        }
+
+        .image-header,
+        .visual-header {
+            padding: 15px 20px;
+            font-weight: 900;
+            color: white;
+            background: linear-gradient(135deg, var(--pink), var(--cyan));
+        }
+
+        .image-desc {
+            padding: 18px;
+            color: var(--soft);
+            line-height: 1.75;
+        }
+
+        .visual-card {
+            margin-top: 26px;
+        }
+
+        .visual-body {
+            padding: 22px;
+        }
+
+        .part-label {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .analysis-box {
+            margin-top: 18px;
+            padding: 20px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .analysis-box h6 {
+            font-weight: 900;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .analysis-box p,
+        .list-clean li {
+            color: var(--soft);
+            line-height: 1.75;
+        }
+
+        .list-clean {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .list-clean li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+        }
+
+        .list-clean li::before {
+            content: "◆";
+            position: absolute;
+            left: 0;
+            color: var(--cyan);
+        }
+
+        .download-box {
+            text-align: center;
+            padding: 30px;
+            border-radius: 26px;
+            background: linear-gradient(135deg, rgba(255, 78, 205, 0.18), rgba(34, 211, 238, 0.18), rgba(163, 230, 53, 0.14));
+            border: 1px solid var(--border);
+        }
+
+        .download-box p {
+            max-width: 760px;
+            margin: 0 auto 24px;
+            color: var(--soft);
+            line-height: 1.8;
+        }
+
+        .btn-custom,
+        .btn-back {
+            display: inline-block;
+            padding: 14px 24px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 800;
+            transition: .25s ease;
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, var(--lime), var(--cyan));
+            color: #00131c;
+        }
+
+        .btn-back {
+            margin-top: 16px;
+            border: 2px solid var(--pink);
+            color: var(--pink);
+        }
+
+        .btn-custom:hover,
+        .btn-back:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-back:hover {
+            background: var(--pink);
+            color: white;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 35px 20px 50px;
+            color: var(--muted);
+        }
+
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.94);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        #lightbox img {
+            max-width: 92%;
+            max-height: 88%;
+            border-radius: 18px;
+            transform-origin: center center;
+        }
+
+        .lightbox-note {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 991px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .section-card {
+                margin: 18px 14px;
+                padding: 24px;
+            }
+
+            .image-wrap img,
+            .visual-img {
+                height: 240px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 80px 16px 55px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="hero">
+        <div class="hero-badge">DATA ANALYST PORTFOLIO PROJECT • PYTHON • LOAN RISK ANALYTICS</div>
+        <h1>Loan Default Risk Analysis Using Financial and Demographic Data</h1>
+        <p>
+            This project analyses loan default risk using customer financial and demographic information.
+            The workflow includes data loading, quality checks, missing value treatment, duplicate removal,
+            feature engineering, exploratory visualisation, risk segmentation, and actionable recommendations
+            for improving loan decision-making.
+        </p>
+
+        <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">Pandas</span>
+            <span class="tag">NumPy</span>
+            <span class="tag">Matplotlib</span>
+            <span class="tag">Seaborn</span>
+            <span class="tag">EDA</span>
+            <span class="tag">Risk Segmentation</span>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">📌 Project Overview</h2>
+        <p class="section-intro">
+            The purpose of this project is to understand the factors associated with loan repayment and default.
+            The analysis focuses on applicant income, coapplicant income, loan amount, credit history,
+            loan-to-income ratio, and demographic information such as gender, marital status, education,
+            employment type, and property area.
+        </p>
+
+        <div class="row mt-4 g-4">
+            <div class="col-lg-4">
+                <div class="content-box">
+                    <div class="pill pink">Business Problem</div>
+                    <p class="section-intro">
+                        Lenders need to identify customers who are more likely to default so they can manage risk,
+                        protect revenue, and make better approval decisions.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="content-box">
+                    <div class="pill cyan">Dataset Focus</div>
+                    <p class="section-intro">
+                        The dataset includes customer profile details, income values, loan amount, credit history,
+                        property area, loan term, and final loan status.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="content-box">
+                    <div class="pill lime">Project Goal</div>
+                    <p class="section-intro">
+                        To clean the data, engineer useful risk features, visualise patterns, and identify practical
+                        insights that support loan default risk assessment.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">🎯 Project Snapshot</h2>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-number">2100</div>
+                <div class="kpi-label">Original Records</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number">14</div>
+                <div class="kpi-label">Original Columns</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number">100</div>
+                <div class="kpi-label">Duplicate Rows Found</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-number">2000</div>
+                <div class="kpi-label">Cleaned Records</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">1️⃣ Data Loading and Initial Exploration</h2>
+        <p class="section-intro">
+            The first stage imports the required Python libraries, loads the loan dataset from the project data folder,
+            previews the first rows, checks data types, and reviews summary statistics.
+        </p>
+
+        <div class="row mt-4 g-4">
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/1. import Libraries.png" alt="Import Python libraries" class="zoomable">
+                    </div>
+                    <div class="image-header">Import Data Analysis Libraries</div>
+                    <div class="image-desc">
+                        Pandas and NumPy were imported for data manipulation, while Matplotlib and Seaborn were imported
+                        for visualisation. These libraries form the foundation of the analysis workflow.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/2. Load Datasets and Preview Columns.png"
+                            alt="Load dataset and preview first rows" class="zoomable">
+                    </div>
+                    <div class="image-header">Load Dataset and Preview Rows</div>
+                    <div class="image-desc">
+                        The dataset was loaded from the data folder and previewed using the first five rows.
+                        This confirmed the presence of key fields such as CustomerID, Age, Gender, Marital_Status,
+                        Education, Employment_Type, ApplicantIncome, and loan-related variables.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4 g-4">
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/3. Check DataTypes.png" alt="Data information and missing values"
+                            class="zoomable">
+                    </div>
+                    <div class="image-header">Check Data Types and Missing Values</div>
+                    <div class="image-desc">
+                        The dataset initially contained 2,100 rows and 14 columns. Several fields had missing values,
+                        including Gender, Marital_Status, LoanAmount, and Credit_History.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/4. Summary Statistics.png" alt="Summary statistics" class="zoomable">
+                    </div>
+                    <div class="image-header">Summary Statistics</div>
+                    <div class="image-desc">
+                        The descriptive statistics show the spread of age, applicant income, coapplicant income,
+                        loan amount, and loan term. Applicant income and loan amount vary widely, making them useful
+                        variables for risk analysis.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">2️⃣ Data Quality Checks and Cleaning</h2>
+        <p class="section-intro">
+            The next stage focuses on identifying missing values, duplicate rows, and inconsistent text values.
+            Cleaning these issues helps ensure the analysis is accurate and reliable.
+        </p>
+
+        <div class="row mt-4 g-4">
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/5. Count missing Values.png" alt="Missing values per column" class="zoomable">
+                    </div>
+                    <div class="image-header">Count Missing Values</div>
+                    <div class="image-desc">
+                        Missing values were identified in Gender, Marital_Status, LoanAmount, and Credit_History.
+                        These missing values required treatment before further analysis.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/6. Check Duplicates.png" alt="Duplicate rows" class="zoomable">
+                    </div>
+                    <div class="image-header">Duplicate Row Check</div>
+                    <div class="image-desc">
+                        The dataset contained 100 duplicate rows. These duplicates could bias the analysis, so they were
+                        removed.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-card">
+            <div class="visual-header">Duplicate Removal — Before and After</div>
+            <div class="visual-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="part-label">Duplicate Count Before</div>
+                        <img src="images/7. Remove Duplicates and Check After.png" alt="Duplicate count before removal"
+                            class="visual-img zoomable">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="part-label">Dataset After Removing Duplicates</div>
+                        <img src="images/6B. Check Duplicates After.png" alt="Dataset after duplicate removal"
+                            class="visual-img zoomable">
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h6>Summary</h6>
+                    <p>After removing duplicates, the dataset reduced from 2,100 records to 2,000 records.</p>
+                    <h6>Key Insight</h6>
+                    <p>Duplicate entries can inflate category counts and distort default rate patterns.</p>
+                    <h6>Recommendation</h6>
+                    <p>Duplicate checks should always be performed before building loan risk models or making approval
+                        decisions.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4 g-4">
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/8. Handle Missing Values.png" alt="Handle missing values" class="zoomable">
+                    </div>
+                    <div class="image-header">Handle Missing Values</div>
+                    <div class="image-desc">
+                        Numerical missing values were filled using the median, while categorical missing values were
+                        filled
+                        using the mode. This approach preserves the dataset size while reducing the effect of extreme
+                        values.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/13. Preview Cleaned Dataset.png" alt="Preview cleaned dataset"
+                            class="zoomable">
+                    </div>
+                    <div class="image-header">Preview Cleaned Dataset</div>
+                    <div class="image-desc">
+                        After cleaning, the dataset preview shows that missing categorical values have been replaced,
+                        making the data ready for feature engineering and visual analysis.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4 g-4">
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/10. Standardise Text Columns.png" alt="Standardise text columns"
+                            class="zoomable">
+                    </div>
+                    <div class="image-header">Standardise Text Columns</div>
+                    <div class="image-desc">
+                        Text columns were cleaned by stripping spaces, converting text to lowercase, and converting
+                        selected
+                        columns to title case for readability.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/11. Conver Loan Status to Numeric.png" alt="Convert loan status to numeric"
+                            class="zoomable">
+                    </div>
+                    <div class="image-header">Convert Loan Status</div>
+                    <div class="image-desc">
+                        Loan_Status was converted from text values into numeric values where 1 represents repaid
+                        and 0 represents default. This makes the target variable easier to analyse and model.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4 g-4">
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/12. Create New Columns.png" alt="Feature engineering" class="zoomable">
+                    </div>
+                    <div class="image-header">Feature Engineering</div>
+                    <div class="image-desc">
+                        New features were created, including Total_Income and Loan_Income_Ratio.
+                        These features provide stronger indicators of borrower financial capacity and repayment
+                        pressure.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="image-card">
+                    <div class="image-wrap">
+                        <img src="images/14. Final Checks of Cleaned Data.png" alt="Final cleaned data check"
+                            class="zoomable">
+                    </div>
+                    <div class="image-header">Final Cleaned Data Check</div>
+                    <div class="image-desc">
+                        The final cleaned dataset contains 2,000 rows and 16 columns, with all required fields complete
+                        and ready for visual analysis.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">3️⃣ Visual Analysis and Insights</h2>
+        <p class="section-intro">
+            The visual analysis explores loan status distribution, income versus loan amount, credit history,
+            loan amount distribution, correlation between variables, and borrower risk categories.
+        </p>
+
+        <div class="visual-card">
+            <div class="visual-header">Chart 1 — Loan Repayment vs Default Distribution</div>
+            <div class="visual-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="part-label">Code + Chart</div>
+                        <img src="images/15. Loan default Distributions.png"
+                            alt="Loan repayment vs default distribution code and chart" class="visual-img zoomable">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="part-label">Chart Only</div>
+                        <img src="images/15B. Loan default Distributions.png"
+                            alt="Loan repayment vs default distribution" class="visual-img zoomable">
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h6>Summary</h6>
+                    <p>The chart compares customers who repaid their loans with customers who defaulted.</p>
+                    <h6>Key Insight</h6>
+                    <p>The dataset is fairly balanced, with repaid loans slightly higher than defaults.</p>
+                    <h6>Recommendation</h6>
+                    <p>Because defaults are still substantial, lenders should not rely only on approval volume. Risk
+                        indicators should be used before granting loans.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-card">
+            <div class="visual-header">Chart 2 — Income vs Loan Amount</div>
+            <div class="visual-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="part-label">Code + Chart</div>
+                        <img src="images/16. Incomve vs Loan Amount.png" alt="Income vs loan amount code and chart"
+                            class="visual-img zoomable">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="part-label">Chart Only</div>
+                        <img src="images/16B. Incomve vs Loan Amount.png" alt="Income vs loan amount"
+                            class="visual-img zoomable">
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h6>Summary</h6>
+                    <p>The scatter plot shows how total income relates to loan amount.</p>
+                    <h6>Key Insight</h6>
+                    <p>Loan amounts are spread across all income levels, suggesting that income alone does not fully
+                        explain loan size.</p>
+                    <h6>Recommendation</h6>
+                    <p>Loan decisions should combine income with additional features such as credit history,
+                        loan-to-income ratio, and employment type.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-card">
+            <div class="visual-header">Chart 3 — Impact of Credit History on Loan Default</div>
+            <div class="visual-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="part-label">Code + Chart</div>
+                        <img src="images/19. Creadit Hostory vs Default.png"
+                            alt="Credit history vs default code and chart" class="visual-img zoomable">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="part-label">Chart Only</div>
+                        <img src="images/19B. Creadit Hostory vs Default.png" alt="Credit history vs default"
+                            class="visual-img zoomable">
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h6>Summary</h6>
+                    <p>The chart compares loan outcomes for customers with and without credit history.</p>
+                    <h6>Key Insight</h6>
+                    <p>Customers with credit history are far more likely to repay, while customers without credit
+                        history show a higher default pattern.</p>
+                    <h6>Recommendation</h6>
+                    <p>Credit history should be treated as a key variable in loan approval scoring and risk
+                        segmentation.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-card">
+            <div class="visual-header">Chart 4 — Loan Amount Distribution</div>
+            <div class="visual-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="part-label">Code + Chart</div>
+                        <img src="images/17. Loan Amount Distribution.png" alt="Loan amount distribution code and chart"
+                            class="visual-img zoomable">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="part-label">Chart Only</div>
+                        <img src="images/17B. Loan Amount Distribution.png" alt="Loan amount distribution"
+                            class="visual-img zoomable">
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h6>Summary</h6>
+                    <p>The histogram shows how loan amounts are distributed across customers.</p>
+                    <h6>Key Insight</h6>
+                    <p>Loan amounts are widely distributed, with a noticeable concentration around the middle range.</p>
+                    <h6>Recommendation</h6>
+                    <p>Loan amount should be evaluated relative to income rather than alone, because a similar loan size
+                        can carry different risk for different customers.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-card">
+            <div class="visual-header">Chart 5 — Correlation Matrix</div>
+            <div class="visual-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="part-label">Code + Chart</div>
+                        <img src="images/18. Correlation Matrix.png" alt="Correlation matrix code and chart"
+                            class="visual-img zoomable">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="part-label">Chart Only</div>
+                        <img src="images/18B. Correlation Matrix.png" alt="Correlation matrix"
+                            class="visual-img zoomable">
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h6>Summary</h6>
+                    <p>The correlation matrix compares relationships between numeric variables in the cleaned dataset.
+                    </p>
+                    <h6>Key Insight</h6>
+                    <p>Total income has a strong positive relationship with applicant income, while loan-to-income ratio
+                        is strongly related to loan amount and negatively related to income.</p>
+                    <h6>Recommendation</h6>
+                    <p>Loan_Income_Ratio should be included in any future predictive model because it directly captures
+                        repayment pressure.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-card">
+            <div class="visual-header">Chart 6 — Loan Default by Risk Category</div>
+            <div class="visual-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="part-label">Code + Chart</div>
+                        <img src="images/20. Risk Segmentation.png" alt="Risk segmentation code and chart"
+                            class="visual-img zoomable">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="part-label">Chart Only</div>
+                        <img src="images/20B. Risk Segmentation.png" alt="Loan default by risk category"
+                            class="visual-img zoomable">
+                    </div>
+                </div>
+
+                <div class="analysis-box">
+                    <h6>Summary</h6>
+                    <p>Borrowers were grouped into low, medium, and high risk categories based on loan-to-income ratio.
+                    </p>
+                    <h6>Key Insight</h6>
+                    <p>Risk segmentation helps reveal how repayment and default patterns change across borrower groups.
+                    </p>
+                    <h6>Recommendation</h6>
+                    <p>Lenders should use risk categories to support decision-making, pricing, customer monitoring, and
+                        targeted affordability checks.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">4️⃣ Overall Insights and Recommendations</h2>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="content-box">
+                    <div class="pill violet">Key Insights</div>
+                    <ul class="list-clean">
+                        <li>The dataset originally contained missing values and duplicate records that required
+                            cleaning.</li>
+                        <li>Credit history appears to be one of the strongest indicators of loan repayment behaviour.
+                        </li>
+                        <li>Total income alone does not fully explain loan amount or default risk.</li>
+                        <li>Loan-to-income ratio provides a stronger measure of borrower repayment pressure.</li>
+                        <li>Risk segmentation helps separate customers into meaningful low, medium, and high risk
+                            groups.</li>
+                        <li>The cleaned dataset is suitable for further modelling and prediction.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="content-box">
+                    <div class="pill amber">Recommendations</div>
+                    <ul class="list-clean">
+                        <li>Use credit history as a major feature in loan approval and risk scoring.</li>
+                        <li>Assess loan amount relative to total income, not as a standalone value.</li>
+                        <li>Monitor customers with high loan-to-income ratios more closely.</li>
+                        <li>Use risk segmentation to guide lending decisions and customer support strategies.</li>
+                        <li>Build a predictive model using cleaned financial and demographic features.</li>
+                        <li>Review high-risk borrowers manually before approving large loans.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <h2 class="section-title">🚀 Next Steps</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="content-box">
+                    <div class="pill cyan">Predictive Modelling</div>
+                    <p class="section-intro">
+                        Build models such as logistic regression, decision trees, random forests, or gradient boosting
+                        to predict default risk.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="content-box">
+                    <div class="pill lime">Model Evaluation</div>
+                    <p class="section-intro">
+                        Evaluate models using accuracy, precision, recall, F1-score, confusion matrix, and ROC-AUC.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="content-box">
+                    <div class="pill rose">Business Deployment</div>
+                    <p class="section-intro">
+                        Convert model outputs into practical risk categories that can support loan approval decisions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-card">
+        <div class="download-box">
+            <h2 class="section-title justify-content-center">📁 Download Cleaned Dataset</h2>
+            <p>
+                The cleaned dataset is available for download and can be used for further analysis,
+                model building, and portfolio review.
+            </p>
+
+            <a href="data/cleaned_data/loan_default_dataset_cleaned.csv" class="btn-custom" download>
+                ⬇ Download Cleaned Dataset
+            </a>
+
+            <br>
+
+            <a href="../index.html" class="btn-back">
+                ← Back to Main Portfolio
+            </a>
+        </div>
+    </section>
+
+    <div class="footer">
+        Loan Default Risk Analysis Using Financial and Demographic Data • Data Analyst Portfolio Project
+    </div>
+
+    <div id="lightbox">
+        <img id="lightbox-img" src="" alt="Zoomed image">
+        <div class="lightbox-note">Click anywhere to close • Use mouse wheel to zoom</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let scale = 1;
+            const lightbox = document.getElementById("lightbox");
+            const lightboxImg = document.getElementById("lightbox-img");
+            const zoomables = document.querySelectorAll(".zoomable");
+
+            zoomables.forEach(img => {
+                img.addEventListener("click", function () {
+                    lightbox.style.display = "flex";
+                    lightboxImg.src = this.src;
+                    scale = 1;
+                    lightboxImg.style.transform = "scale(1)";
+                });
+            });
+
+            lightbox.addEventListener("click", function () {
+                lightbox.style.display = "none";
+            });
+
+            lightboxImg.addEventListener("wheel", function (e) {
+                e.preventDefault();
+                scale += e.deltaY < 0 ? 0.1 : -0.1;
+                if (scale < 1) scale = 1;
+                if (scale > 3) scale = 3;
+                lightboxImg.style.transform = `scale(${scale})`;
+            });
+        });
+    </script>
+
+</body>
+
+</html>
